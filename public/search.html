@@ -19,10 +19,12 @@
         body {
             font-family: Arial, Helvetica, sans-serif;
             margin: 0;
+            background: #2b2b2b;
+            color: #fff;
         }
 
         header {
-            background-color: lightblue;
+            background-color: #005ea8;
         }
 
         header .content {
@@ -74,9 +76,12 @@
             color: white;
         }
 
-        .results img {
+        .img {
             width: 200px;
             height: 200px;
+            background-position: center;
+            background-size: contain;
+            background-repeat: no-repeat;
         }
     </style>
 </head>
@@ -92,10 +97,10 @@
         <div class="search">
             <form>
                 <input type="text" name="q" placeholder="Suchbegriff" autofocus="autofocus"/>
-                <input type="radio" id="ASC" name="o" value="ASC"/>
-                <label for="ASC">ASC</label>
-                <input type="radio" id="DESC" name="o" value="DESC"/>
-                <label for="ASC">DESC</label>
+                <select name="o">
+                    <option value="ASC">aufsteigend</option>
+                    <option value="DESC">absteigend</option>
+                </select>
                 <input type="submit" value="Suchen"/>
             </form>
         </div>
@@ -112,7 +117,7 @@
                 <tbody>
                 {{range .Results}}
                 <tr>
-                    <td><img src="{{.Image}}"/></td>
+                    <td class="img" style="background-image: {{.Image}};"></td>
                     <td>{{.Name}}</td>
                     <td>{{.Price}}$</td>
                 </tr>

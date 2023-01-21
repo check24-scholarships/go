@@ -3,7 +3,9 @@ package main
 import (
 	"bytes"
 	"database/sql"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gocolly/colly"
 	"html/template"
 	"io"
 	"log"
@@ -63,24 +65,42 @@ func main() {
 	}
 
 	search := func(query string, order string) QueryResult {
-		rows, err := db.Query("SELECT * FROM products WHERE name LIKE '%" + query + "%' ORDER BY price " + order)
-		if err != nil {
-			return QueryResult{[]DBContent{}}
+		fmt.Println(2)
+		sort := ""
+		if order == "ASC" {
+			sort = "&sort=ASC"
 		}
-		defer rows.Close()
+		url := "http://172.30.124.38:8080/search" + "?q=" + query + sort
+		c := colly.NewCollector()
 
 		var (
-			args  []DBContent
-			name  string
-			price int
-			image string
+			names     []string
+			prices    []string
+			imgStyles []string
 		)
-		for rows.Next() {
-			err = rows.Scan(&name, &price, &image)
-			if err != nil {
-				panic(err)
-			}
-			args = append(args, DBContent{name, price, image})
+		c.OnHTML("tr td:nth-of-type(1)", func(e *colly.HTMLElement) {
+			imgStyle := e.Attr("style")
+			imgStyles = append(imgStyles, imgStyle)
+		})
+		c.OnHTML("tr td:nth-of-type(2)", func(e *colly.HTMLElement) {
+			name := e.Text
+			names = append(names, name)
+		})
+		c.OnHTML("tr td:nth-of-type(3)", func(e *colly.HTMLElement) {
+			price := e.Text
+			prices = append(prices, price)
+		})
+
+		c.OnRequest(func(r *colly.Request) {
+			fmt.Println("Visiting", r.URL.String())
+		})
+
+		c.Visit(url)
+
+		var args []DBContent
+		for i := 0; i < len(names); i++ {
+			fmt.Println(query)
+			args = append(args, DBContent{names[i], i, imgStyles[i]})
 		}
 
 		return QueryResult{args}
@@ -97,6 +117,7 @@ func main() {
 		publicData := QueryResult{[]DBContent{}}
 
 		if q != "" && o != "" {
+			fmt.Println(123)
 			publicData = search(q, o)
 		}
 
