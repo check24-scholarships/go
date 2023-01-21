@@ -1,1 +1,1 @@
-# go
+# CHECK24 in Go
