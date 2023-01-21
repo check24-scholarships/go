@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="de">
+<body>
+<main>
+    <h1>Stats</h1>
+    <table>
+        <thead>
+        <tr>
+            <th scope="col">URL</th>
+            <th scope="col">Anzahl der Aufrufe</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{range .}}
+        <tr>
+            <td>{{.Url}}</td>
+            <td>{{.Amount}}</td>
+        </tr>
+        {{end}}
+        </tbody>
+    </table>
+</main>
+</body>
+</html>
