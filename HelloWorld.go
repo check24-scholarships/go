@@ -12,11 +12,20 @@ import (
 	"time"
 )
 
-func main() {
-	type PublicData struct {
-		Time string
-	}
+type DBContent struct {
+	Name  string
+	Price int
+	Image string
+}
+type QueryResult struct {
+	Results []DBContent
+}
 
+type TimeStruct struct {
+	Time string
+}
+
+func main() {
 	/*db, err := sql.Open("mysql",
 		"user:password@tcp(127.0.0.1:3306)/hello")
 	if err != nil {
@@ -33,7 +42,7 @@ func main() {
 			w.WriteHeader(http.StatusNotFound)
 		}
 
-		publicData := PublicData{time.Now().Format("01-02-2006 15:04:05")}
+		publicData := TimeStruct{time.Now().Format("01-02-2006 15:04:05")}
 
 		tmpl, err := template.New("test").Parse(string(indexBytes))
 		if err != nil {
@@ -53,22 +62,46 @@ func main() {
 		}
 	}
 
-	search := func(query string) {
+	search := func(query string) QueryResult {
 		fmt.Println(query)
+		return QueryResult{[]DBContent{
+			{
+				"hehe",
+				69,
+				"https://picsum.photos/200",
+			},
+		}}
 	}
 
 	searchHTMLHandler := func(w http.ResponseWriter, req *http.Request) {
-		indexBytes, err := os.ReadFile("./public/search.html")
+		searchBytes, err := os.ReadFile("./public/search.html")
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
+			panic(err)
 		}
 
 		q := req.URL.Query().Get("q")
+		publicData := QueryResult{[]DBContent{}}
+
 		if q != "" {
-			search(q)
+			publicData = search(q)
 		}
 
-		_, err = io.WriteString(w, string(indexBytes))
+		tmpl, err := template.New("test").Parse(string(searchBytes))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			panic(err)
+		}
+
+		var tpl bytes.Buffer
+		if err = tmpl.Execute(&tpl, publicData); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			panic(err)
+		}
+
+		indexTemplated := tpl.String()
+
+		_, err = io.WriteString(w, indexTemplated)
 		if err != nil {
 			return
 		}
