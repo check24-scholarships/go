@@ -92,7 +92,10 @@
         <div class="search">
             <form>
                 <input type="text" name="q" placeholder="Suchbegriff" autofocus="autofocus"/>
-                <input type="text" name="o" placeholder="ASC bzw. DESC"/>
+                <input type="radio" id="ASC" name="o" value="ASC"/>
+                <label for="ASC">ASC</label>
+                <input type="radio" id="DESC" name="o" value="DESC"/>
+                <label for="ASC">DESC</label>
                 <input type="submit" value="Suchen"/>
             </form>
         </div>
