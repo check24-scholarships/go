@@ -62,8 +62,8 @@ func main() {
 		panic(err)
 	}
 
-	search := func(query string) QueryResult {
-		rows, err := db.Query("SELECT * FROM products WHERE name LIKE '%" + query + "%'")
+	search := func(query string, order string) QueryResult {
+		rows, err := db.Query("SELECT * FROM products WHERE name LIKE '%" + query + "%' ORDER BY price " + order)
 		if err != nil {
 			return QueryResult{[]DBContent{}}
 		}
@@ -93,10 +93,11 @@ func main() {
 		}
 
 		q := req.URL.Query().Get("q")
+		o := req.URL.Query().Get("o")
 		publicData := QueryResult{[]DBContent{}}
 
-		if q != "" {
-			publicData = search(q)
+		if q != "" && o != "" {
+			publicData = search(q, o)
 		}
 
 		tmpl, err := template.New("test").Parse(string(searchBytes))
