@@ -118,7 +118,20 @@ func main() {
 		}
 	}
 
+	phpHandler := func(w http.ResponseWriter, req *http.Request) {
+		fileBytes, err := os.ReadFile("./public/php.html")
+		if err != nil {
+			w.WriteHeader(http.StatusNotFound)
+		}
+
+		_, err = io.WriteString(w, string(fileBytes))
+		if err != nil {
+			return
+		}
+	}
+
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/search", searchHandler)
+	http.HandleFunc("/php", phpHandler)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
