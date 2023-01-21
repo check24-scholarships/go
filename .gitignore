@@ -8,6 +8,8 @@
 *.so
 *.dylib
 check24-in-go
+server
+dbinit
 
 # Test binary, built with `go test -c`
 *.test
