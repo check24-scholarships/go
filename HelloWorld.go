@@ -1,32 +1,40 @@
 package main
 
 import (
+	"bytes"
 	"html/template"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 func main() {
 	type PublicData struct {
-		Material string
-		Count    uint
+		Time string
 	}
-	indexBuffer, err := os.ReadFile("./public/index.html")
-	indexString := string(indexBuffer)
-	publicData := PublicData{"wool", 17}
-	tmpl, err := template.New("test").Parse("{{.Count}} items are made of {{.Material}}")
-	if err != nil {
-		panic(err)
-	}
-	err = tmpl.Execute(os.Stdout, publicData)
+
+	indexBytes, err := os.ReadFile("./public/index.html")
+
+	publicData := PublicData{time.Now().Format("01-02-2006 15:04:05")}
+	tmpl, err := template.New("test").Parse(string(indexBytes))
 	if err != nil {
 		panic(err)
 	}
 
+	var tpl bytes.Buffer
+	if err = tmpl.Execute(&tpl, publicData); err != nil {
+		panic(err)
+	}
+
+	indexTemplated := tpl.String()
+
 	indexHandler := func(w http.ResponseWriter, req *http.Request) {
-		io.WriteString(w, indexString)
+		_, err := io.WriteString(w, indexTemplated)
+		if err != nil {
+			return
+		}
 	}
 
 	http.HandleFunc("/", indexHandler)
